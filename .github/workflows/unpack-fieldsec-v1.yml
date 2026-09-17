@@ -1,0 +1,47 @@
+name: Publish FieldSec v1.0.0
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.fieldsec_upload/**'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out staging commit
+        uses: actions/checkout@v4
+
+      - name: Reconstruct and verify release archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .fieldsec_upload/part*.b64 | base64 -d > /tmp/FieldSec_v1.0_source.zip
+          echo "55c1414322c5a8b5d3cf6b8c4e253a509446ed70a870b89b120db4bd3e4f897f  /tmp/FieldSec_v1.0_source.zip" | sha256sum -c -
+          rm -rf /tmp/fieldsec-v1
+          mkdir -p /tmp/fieldsec-v1
+          unzip -q /tmp/FieldSec_v1.0_source.zip -d /tmp/fieldsec-v1
+          test -d /tmp/fieldsec-v1/FieldSec
+
+      - name: Publish exact v1.0.0 tree and validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -a /tmp/fieldsec-v1/FieldSec/. .
+          rm -rf .fieldsec_upload
+          sha256sum -c RELEASE_MANIFEST_SHA256.txt
+          python tools/validate_release.py
+
+      - name: Commit release source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Release FieldSec v1.0.0"
+          git push
