@@ -1,1 +1,0 @@
-Trigger FieldSec v1.0.0 exact-source publication.

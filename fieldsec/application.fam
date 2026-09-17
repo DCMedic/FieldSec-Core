@@ -1,0 +1,11 @@
+App(
+    appid="fieldsec",
+    name="FieldSec",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="fieldsec_app",
+    stack_size=6 * 1024,
+    fap_category="Tools",
+    fap_description="Guided security education and authorized field-assessment suite",
+    fap_version="1.0.0",
+    fap_author="FieldSec Project",
+)
